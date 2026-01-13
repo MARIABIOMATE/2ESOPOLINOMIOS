@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicios de Polinomios - 2º ESO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+        .sup { 
+            vertical-align: super; 
+            font-size: 0.75em; 
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div id="app"></div>
+
+    <script>
+        // Datos de los ejercicios
+        const exercises = [
+            {
+                id: 1,
+                type: "Suma de polinomios",
+                question: "(3x² + 5x - 2) + (2x² - 3x + 7)",
+                correct: "5x² + 2x + 5",
+                options: [
+                    "5x² + 2x + 5",
+                    "5x² + 2x + 9",
+                    "5x² + 8x + 5",
+                    "6x² + 2x + 5"
+                ],
+                color: "from-blue-400 to-blue-600",
+                bgColor: "bg-blue-50",
+                borderColor: "border-blue-300"
+            },
+            {
+                id: 2,
+                type: "Suma de polinomios",
+                question: "(4x³ - x² + 6) + (x³ + 3x² - 2x + 1)",
+                correct: "5x³ + 2x² - 2x + 7",
+                options: [
+                    "5x³ + 2x² - 2x + 7",
+                    "5x³ + 2x² + 2x + 7",
+                    "5x³ - 2x² - 2x + 7",
+                    "3x³ + 2x² - 2x + 7"
+                ],
+                color: "from-purple-400 to-purple-600",
+                bgColor: "bg-purple-50",
+                borderColor: "border-purple-300"
+            },
+            {
+                id: 3,
+                type: "Resta de polinomios",
+                question: "(5x² + 4x - 3) - (2x² + x - 5)",
+                correct: "3x² + 3x + 2",
+                options: [
+                    "3x² + 3x + 2",
+                    "3x² + 3x - 8",
+                    "3x² + 5x + 2",
+                    "7x² + 3x + 2"
+                ],
+                color: "from-green-400 to-green-600",
+                bgColor: "bg-green-50",
+                borderColor: "border-green-300"
+            },
+            {
+                id: 4,
+                type: "Resta de polinomios",
+                question: "(3x³ + 2x² - x + 8) - (x³ - 4x² + 3x - 2)",
+                correct: "2x³ + 6x² - 4x + 10",
+                options: [
+                    "2x³ + 6x² - 4x + 10",
+                    "2x³ + 6x² + 2x + 10",
+                    "2x³ - 2x² - 4x + 10",
+                    "4x³ + 6x² - 4x + 10"
+                ],
+                color: "from-pink-400 to-pink-600",
+                bgColor: "bg-pink-50",
+                borderColor: "border-pink-300"
+            },
+            {
+                id: 5,
+                type: "Monomio por polinomio",
+                question: "3x · (2x² - 4x + 5)",
+                correct: "6x³ - 12x² + 15x",
+                options: [
+                    "6x³ - 12x² + 15x",
+                    "6x³ - 12x² + 5x",
+                    "6x² - 12x + 15x",
+                    "6x³ + 12x² + 15x"
+                ],
+                color: "from-orange-400 to-orange-600",
+                bgColor: "bg-orange-50",
+                borderColor: "border-orange-300"
+            },
+            {
+                id: 6,
+                type: "Multiplicación de polinomios",
+                question: "(2x + 1) · (x³ - x² + 2x - 3)",
+                correct: "2x⁴ - x³ + 3x² - 4x - 3",
+                options: [
+                    "2x⁴ - x³ + 3x² - 4x - 3",
+                    "2x⁴ + x³ + 3x² - 4x - 3",
+                    "2x⁴ - x³ - 3x² - 4x - 3",
+                    "2x⁴ - x³ + 3x² + 4x - 3"
+                ],
+                color: "from-red-400 to-red-600",
+                bgColor: "bg-red-50",
+                borderColor: "border-red-300"
+            },
+            {
+                id: 7,
+                type: "Polinomio entre monomio",
+                question: "(12x⁴ - 18x³ + 6x²) : 6x²",
+                correct: "2x² - 3x + 1",
+                options: [
+                    "2x² - 3x + 1",
+                    "2x² + 3x + 1",
+                    "2x - 3x + 1",
+                    "2x² - 3x - 1"
+                ],
+                color: "from-teal-400 to-teal-600",
+                bgColor: "bg-teal-50",
+                borderColor: "border-teal-300"
+            },
+            {
+                id: 8,
+                type: "División de polinomios",
+                question: "(x³ - 2x² - 5x + 6) : (x - 3)",
+                correct: "x² + x - 2",
+                options: [
+                    "x² + x - 2",
+                    "x² - x - 2",
+                    "x² + x + 2",
+                    "x² - x + 2"
+                ],
+                color: "from-indigo-400 to-indigo-600",
+                bgColor: "bg-indigo-50",
+                borderColor: "border-indigo-300"
+            }
+        ];
+
+        // Estado de la aplicación
+        let state = {
+            studentName: '',
+            currentExercise: 0,
+            answers: {},
+            showWelcome: true,
+            finished: false
+        };
+
+        // Convertir exponentes a superíndices
+        function formatExpression(expr) {
+            return expr
+                .replace(/x²/g, 'x<span class="sup">2</span>')
+                .replace(/x³/g, 'x<span class="sup">3</span>')
+                .replace(/x⁴/g, 'x<span class="sup">4</span>')
+                .replace(/x⁵/g, 'x<span class="sup">5</span>')
+                .replace(/\^2/g, '<span class="sup">2</span>')
+                .replace(/\^3/g, '<span class="sup">3</span>')
+                .replace(/\^4/g, '<span class="sup">4</span>');
+        }
+
+        // Barajar opciones
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Renderizar pantalla de bienvenida
+        function renderWelcome() {
+            return `
+                <div class="min-h-screen flex items-center justify-center p-4">
+                    <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 max-w-2xl w-full">
+                        <div class="text-center mb-8">
+                            <h1 class="text-5xl font-bold text-gray-800 mb-6">POLINOMIOS</h1>
+                            <p class="text-3xl text-gray-600 mb-4">2º ESO</p>
+                            <p class="text-xl text-gray-500">Ejercicios Interactivos</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-8 mb-8">
+                            <div class="grid md:grid-cols-3 gap-6 text-center">
+                                <div class="bg-white rounded-xl p-4 shadow">
+                                    <p class="text-4xl font-bold text-blue-600 mb-2">8</p>
+                                    <p class="text-sm text-gray-600">Ejercicios</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 shadow">
+                                    <p class="text-4xl font-bold text-purple-600 mb-2">4</p>
+                                    <p class="text-sm text-gray-600">Tipos</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 shadow">
+                                    <p class="text-4xl font-bold text-green-600 mb-2">1</p>
+                                    <p class="text-sm text-gray-600">Informe</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-8 bg-blue-50 p-6 rounded-xl">
+                            <p class="text-gray-700 font-medium">CONTENIDOS:</p>
+                            <p class="text-gray-600">• Sumas y restas de polinomios</p>
+                            <p class="text-gray-600">• Multiplicaciones</p>
+                            <p class="text-gray-600">• Divisiones</p>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-bold mb-3 text-lg">NOMBRE COMPLETO:</label>
+                            <input 
+                                type="text" 
+                                id="studentName" 
+                                placeholder="Escribe tu nombre y apellidos"
+                                class="w-full px-6 py-4 border-3 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none text-xl"
+                                onkeypress="if(event.key === 'Enter') startExercises()"
+                            >
+                        </div>
+
+                        <button 
+                            onclick="startExercises()"
+                            class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-5 text-xl rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                        >
+                            COMENZAR
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderizar ejercicio actual
+        function renderExercise() {
+            const ex = exercises[state.currentExercise];
+            const shuffledOptions = shuffleArray(ex.options);
+            const progress = ((state.currentExercise + 1) / exercises.length * 100).toFixed(0);
+
+            return `
+                <div class="min-h-screen p-4 md:p-8">
+                    <div class="max-w-5xl mx-auto">
+                        <!-- Header -->
+                        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h2 class="text-3xl font-bold text-gray-800">${state.studentName}</h2>
+                                    <p class="text-xl text-gray-600 mt-2">Ejercicio ${state.currentExercise + 1} de ${exercises.length}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-5xl font-bold bg-gradient-to-r ${ex.color} bg-clip-text text-transparent">
+                                        ${state.currentExercise + 1}/8
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Barra de progreso -->
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-gradient-to-r ${ex.color} h-4 rounded-full transition-all duration-500" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Ejercicio -->
+                        <div class="bg-white rounded-3xl shadow-2xl p-10 ${ex.bgColor} border-4 ${ex.borderColor}">
+                            <div class="mb-8">
+                                <span class="bg-gradient-to-r ${ex.color} text-white px-6 py-3 rounded-full text-lg font-bold">
+                                    ${ex.type.toUpperCase()}
+                                </span>
+                            </div>
+
+                            <div class="mb-10">
+                                <p class="text-gray-700 font-bold mb-4 text-xl">RESUELVE:</p>
+                                <div class="bg-white rounded-2xl p-8 border-3 border-gray-300 shadow-inner">
+                                    <p class="text-4xl font-bold text-center text-gray-800">
+                                        ${formatExpression(ex.question)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-5">
+                                <p class="text-gray-700 font-bold mb-6 text-xl">SELECCIONA LA RESPUESTA CORRECTA:</p>
+                                ${shuffledOptions.map((option, idx) => `
+                                    <button 
+                                        onclick="checkAnswer('${option}')"
+                                        class="w-full p-6 text-left border-4 border-gray-300 rounded-2xl hover:border-gray-500 hover:bg-gray-50 transition-all transform hover:scale-102 bg-white shadow-lg"
+                                    >
+                                        <div class="flex items-center gap-6">
+                                            <span class="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-to-r ${ex.color} text-white flex items-center justify-center font-bold text-2xl">
+                                                ${String.fromCharCode(65 + idx)}
+                                            </span>
+                                            <span class="text-2xl font-medium text-gray-800">
+                                                ${formatExpression(option)}
+                                            </span>
+                                        </div>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderizar resultado final
+        function renderResults() {
+            const correct = Object.values(state.answers).filter(a => a.correct).length;
+            const incorrect = exercises.length - correct;
+            const percentage = ((correct / exercises.length) * 100).toFixed(1);
+
+            return `
+                <div class="min-h-screen p-4 md:p-8">
+                    <div class="max-w-5xl mx-auto">
+                        <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+                            <div class="text-center mb-10">
+                                <h2 class="text-5xl font-bold text-gray-800 mb-4">HAS TERMINADO</h2>
+                                <p class="text-2xl text-gray-600">Alumno: ${state.studentName}</p>
+                            </div>
+
+                            <!-- Estadísticas -->
+                            <div class="grid md:grid-cols-3 gap-6 mb-10">
+                                <div class="bg-green-50 rounded-2xl p-8 text-center border-4 border-green-300">
+                                    <div class="text-6xl font-bold text-green-600 mb-3">${correct}</div>
+                                    <div class="text-lg text-gray-600 font-medium">CORRECTAS</div>
+                                </div>
+                                <div class="bg-red-50 rounded-2xl p-8 text-center border-4 border-red-300">
+                                    <div class="text-6xl font-bold text-red-600 mb-3">${incorrect}</div>
+                                    <div class="text-lg text-gray-600 font-medium">INCORRECTAS</div>
+                                </div>
+                                <div class="bg-blue-50 rounded-2xl p-8 text-center border-4 border-blue-300">
+                                    <div class="text-6xl font-bold text-blue-600 mb-3">${percentage}%</div>
+                                    <div class="text-lg text-gray-600 font-medium">ACIERTO</div>
+                                </div>
+                            </div>
+
+                            <!-- Desglose por ejercicio -->
+                            <div class="mb-10">
+                                <h3 class="text-3xl font-bold text-gray-800 mb-6">RESUMEN DE EJERCICIOS</h3>
+                                <div class="space-y-4">
+                                    ${exercises.map((ex, idx) => {
+                                        const answer = state.answers[idx];
+                                        const isCorrect = answer && answer.correct;
+                                        return `
+                                            <div class="p-6 rounded-2xl border-4 ${isCorrect ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}">
+                                                <div class="flex items-start gap-4">
+                                                    <span class="text-4xl font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                                                        ${idx + 1}.
+                                                    </span>
+                                                    <div class="flex-1">
+                                                        <p class="font-bold text-gray-800 mb-2 text-xl">${formatExpression(ex.question)}</p>
+                                                        <p class="text-2xl font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}">
+                                                            ${isCorrect ? 'CORRECTO' : 'INCORRECTO'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex gap-4 flex-wrap">
+                                <button 
+                                    onclick="downloadResults()"
+                                    class="flex-1 min-w-[250px] bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-5 px-6 text-xl rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg"
+                                >
+                                    DESCARGAR INFORME
+                                </button>
+                                <button 
+                                    onclick="restart()"
+                                    class="flex-1 min-w-[250px] bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-5 px-6 text-xl rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg"
+                                >
+                                    VOLVER A INTENTAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Funciones de control
+        window.startExercises = function() {
+            const nameInput = document.getElementById('studentName');
+            if (nameInput && nameInput.value.trim()) {
+                state.studentName = nameInput.value.trim();
+                state.showWelcome = false;
+                render();
+            } else {
+                alert('Por favor, introduce tu nombre');
+            }
+        };
+
+        window.checkAnswer = function(selectedAnswer) {
+            const ex = exercises[state.currentExercise];
+            const isCorrect = selectedAnswer === ex.correct;
+            
+            state.answers[state.currentExercise] = {
+                correct: isCorrect,
+                selected: selectedAnswer
+            };
+
+            if (isCorrect) {
+                showFeedback('CORRECTO', 'green', () => {
+                    nextExercise();
+                });
+            } else {
+                showFeedback('INCORRECTO<br><br><span class="text-lg">ESCRIBE EL ENUNCIADO,<br>HAZLO EN EL CUADERNO<br>Y MAÑANA PREGÚNTALO EN CLASE</span>', 'red', () => {
+                    nextExercise();
+                });
+            }
+        };
+
+        function showFeedback(message, color, callback) {
+            const bgColor = color === 'green' ? 'bg-green-500' : 'bg-red-500';
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+            overlay.innerHTML = `
+                <div class="${bgColor} text-white rounded-3xl p-12 max-w-2xl text-center shadow-2xl transform scale-0 transition-transform" id="feedbackBox">
+                    <p class="text-5xl font-bold mb-4">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => {
+                document.getElementById('feedbackBox').style.transform = 'scale(1)';
+            }, 10);
+
+            setTimeout(() => {
+                overlay.remove();
+                callback();
+            }, 3000);
+        };
+
+        function nextExercise() {
+            if (state.currentExercise < exercises.length - 1) {
+                state.currentExercise++;
+                render();
+            } else {
+                state.finished = true;
+                render();
+            }
+        };
+
+        window.downloadResults = function() {
+            const correct = Object.values(state.answers).filter(a => a.correct).length;
+            const incorrect = exercises.length - correct;
+            const percentage = ((correct / exercises.length) * 100).toFixed(1);
+            
+            let content = `INFORME DE EJERCICIOS DE POLINOMIOS - 2º ESO
+============================================
+
+Alumno: ${state.studentName}
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+
+RESUMEN:
+--------
+Total de ejercicios: ${exercises.length}
+Correctas: ${correct}
+Incorrectas: ${incorrect}
+Porcentaje de acierto: ${percentage}%
+
+DESGLOSE:
+---------
+
+`;
+
+            exercises.forEach((ex, idx) => {
+                const answer = state.answers[idx];
+                const isCorrect = answer && answer.correct;
+                content += `${idx + 1}. ${ex.question} (${isCorrect ? 'CORRECTO' : 'INCORRECTO'})\n\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Informe_Polinomios_${state.studentName.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        window.restart = function() {
+            state = {
+                studentName: state.studentName,
+                currentExercise: 0,
+                answers: {},
+                showWelcome: false,
+                finished: false
+            };
+            render();
+        };
+
+        // Renderizar aplicación
+        function render() {
+            const app = document.getElementById('app');
+            if (state.showWelcome) {
+                app.innerHTML = renderWelcome();
+            } else if (state.finished) {
+                app.innerHTML = renderResults();
+            } else {
+                app.innerHTML = renderExercise();
+            }
+        }
+
+        // Iniciar aplicación
+        document.addEventListener('DOMContentLoaded', render);
+    </script>
+</body>
+</html>
